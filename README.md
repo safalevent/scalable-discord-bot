@@ -3,6 +3,7 @@
 
 ## Features
 - Has some fundamental functions and commands implemented, like _level system_ and a custom _help_ command.
+- It is developed in a scalable context for more complex development cases.
 - Default prefix is "**!**" and it can be changed and customized per server.
 - Uses sqlite to save the data.
 - Uses a custom wrapper for sqlite which you can see in the _data_ class.
