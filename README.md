@@ -23,6 +23,7 @@
 - Install the pip requirements: `pip install -r pip_requirements.txt`
 - **Get a bot _token_ if you haven't yet** from [discord developer portal](https://discord.com/developers/docs/intro). Create an [application](https://discord.com/developers/applications). Create a bot for that application and save the bots token.
 - Create an file named token with no extension. _File's full name should be as `token`._ Paste your bot's token in this file and save.
+- Add your own _discord id_ to the bot_owners list in `Constants.py` to enable owner commands for yourself. [You can get help about getting your discord id here.](https://support.discord.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-)
 - Run the bot: `python Bot.py`
 
 ## Developing your own features.
