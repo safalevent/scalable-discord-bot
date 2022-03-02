@@ -2,7 +2,7 @@
 >This project is a discord bot with generic extension implementation and fundamental features. It uses Python and discord.py library.
 
 ## Features
-- Has some fundamental functions and commands implemented like _level system_ and a custom _help_ command.
+- Has some fundamental functions and commands implemented, like _level system_ and a custom _help_ command.
 - Default prefix is "**!**" and it can be changed and customized per server.
 - Uses sqlite to save the data.
 - Uses a custom wrapper for sqlite which you can see under the _Data_ class.
