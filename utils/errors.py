@@ -1,0 +1,2 @@
+class NoOption(Exception):
+    pass
