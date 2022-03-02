@@ -27,7 +27,7 @@
 - Run the bot: `python Bot.py`
 
 ## Developing your own features.
-Using [extensions](https://discordpy.readthedocs.io/en/stable/ext/commands/extensions.html) are highly recommended to develop new features. You can use the already implemented no functional extension called `ExampleExtension` to start. And learn more about the discord.py using [official discord.py documentation](https://discordpy.readthedocs.io/en/stable/). The bot loads all extensions under `/Extensions/` on start excluding the ones that start with a underscore(\_). Developer can use `extensions load` and `extensions unload` commands to load and unload extensions on runtime.
+Using [extensions](https://discordpy.readthedocs.io/en/stable/ext/commands/extensions.html) are highly recommended to develop new features. You can use the already implemented non-functional extension called `ExampleExtension` to start. Learn more about the discord.py and how extensions work using [official discord.py documentation](https://discordpy.readthedocs.io/en/stable/). The bot loads all extensions under `/Extensions/` on start excluding the ones that start with a underscore(\_). Developer can use `extensions load` and `extensions unload` commands to load and unload extensions on runtime.
 
 ## 🤝 Contributing
 1. [Fork the repository](https://github.com/safalevent/basic-discord-py-bot.git)
