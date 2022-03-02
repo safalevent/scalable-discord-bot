@@ -16,13 +16,11 @@
 - __Using a python environment is recommended but not mandatory.__ [Click here to learn how to create and activate one.](https://docs.python.org/3/tutorial/venv.html)
 - Install [asqlite](https://github.com/Rapptz/asqlite):
  `
- git clone https://github.com/Rapptz/asqlite.git
- pip install -U ./asqlite
+ git clone https://github.com/Rapptz/asqlite.git \n pip install -U ./asqlite
  `
 - _Not mandatory_. Install [discord.py 2.0 beta](https://github.com/Rapptz/discord.py):
  `
- git clone https://github.com/Rapptz/discord.py.git
- pip install -U ./discord.py
+ git clone https://github.com/Rapptz/discord.py.git \n pip install -U ./discord.py
  `
 - Install the pip requirements: `pip install -r pip_requirements.txt`
 - **Get a bot _token_ if you haven't yet** from [discord developer portal](https://discord.com/developers/docs/intro). Create an [application](https://discord.com/developers/applications). Create a bot for that application and save the bots token.
