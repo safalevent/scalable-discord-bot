@@ -6,7 +6,7 @@
 - Default prefix is "**!**" and it can be changed and customized per server.
 - Uses sqlite to save the data.
 - Uses a custom wrapper for sqlite which you can see under the _Data_ class.
-- Loads every extension under the `Extensions` folder and has commands to unload and load then on runtime. Which helps developers develop more complex systems easily. To understand further about extensions, check [this documentation](https://discordpy.readthedocs.io/en/stable/ext/commands/extensions.html).
+- Loads every extension under the `/Extensions/` folder and has commands to unload and load them on runtime. Which helps developers develop more complex systems easily. To understand further about extensions, check [this documentation](https://discordpy.readthedocs.io/en/stable/ext/commands/extensions.html).
 - Has utility functions and classes for some UI elements like buttons, select dropdowns, etc. **You should install discord.py version 2.0.0 which is beta and only available [on their github](https://github.com/Rapptz/discord.py) to use UI.**
 
 ## Requirements
@@ -22,7 +22,7 @@
  `pip install -U ./discord.py`
 - Install the pip requirements: `pip install -r pip_requirements.txt`
 - **Get a bot _token_ if you haven't yet** from [discord developer portal](https://discord.com/developers/docs/intro). Create an [application](https://discord.com/developers/applications). Create a bot for that application and save the bots token.
-- Create an file named token with no extension. _Files full name should be as `token`._ Paste your bots token in this file and save.
+- Create an file named token with no extension. _File's full name should be as `token`._ Paste your bot's token in this file and save.
 - Run the bot: `python Bot.py`
 
 ## Developing your own features.
