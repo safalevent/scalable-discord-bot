@@ -19,7 +19,7 @@
  `pip install -U ./asqlite`
 - _Not mandatory_. Install [discord.py 2.0 beta](https://github.com/Rapptz/discord.py):
  `git clone https://github.com/Rapptz/discord.py.git`
- `pip install -U ./discord.py`
+ `pip install -U ./discord.py[voice]`
 - Install the pip requirements: `pip install -r pip_requirements.txt`
 - **Get a bot _token_ if you haven't yet** from [discord developer portal](https://discord.com/developers/docs/intro). Create an [application](https://discord.com/developers/applications). Create a bot for that application and save the bots token.
 - Create an file named token with no extension. _File's full name should be as `token`._ Paste your bot's token in this file and save.
