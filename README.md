@@ -12,6 +12,7 @@
 
 ## Requirements
 - [Python](https://www.python.org/downloads/)
+- [asqlite](https://github.com/Rapptz/asqlite)
 
 ## Installation
 - __Using a python environment is recommended but not mandatory.__ [Click here to learn how to create and activate one.](https://docs.python.org/3/tutorial/venv.html)
