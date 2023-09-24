@@ -29,8 +29,7 @@ class HasWhereQueryBase(QueryBase):
 
             returns SelectQuery object.
         """
-        if not (equals or less or lessOrEquals or greater or greaterOrEquals or between or like):
-            return
+        assert equals or less or lessOrEquals or greater or greaterOrEquals or between or like
 
         if self._where:
             self._where += sep_from_before
@@ -111,6 +110,8 @@ class HasToSetQueryBase(QueryBase):
 
             if k not in self.columns:
                 self.columns.append(k)
+                
+        return self
         
     def length(self):
         return len(self._toSet)

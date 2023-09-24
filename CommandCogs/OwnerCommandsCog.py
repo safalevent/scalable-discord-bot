@@ -1,10 +1,15 @@
 import discord
+from discord import app_commands
 from discord.ext import commands
+import typing as t
 import asyncio
+import logging
 
 from discord.ext.commands.errors import ExtensionNotFound, ExtensionNotLoaded
 
 import Extensions
+
+from .classes import LoggingLevel
 
 class OwnerCommandsCog(commands.Cog, name="Owner Commands"):
     def __init__(self, bot: commands.Bot):
@@ -20,6 +25,24 @@ class OwnerCommandsCog(commands.Cog, name="Owner Commands"):
 
         await asyncio.sleep(3)
         await self.bot.close()
+
+    @commands.command(name="sync", description="Syncs the hybrid commands.", pass_context=True)
+    async def sync(self, ctx: commands.Context):
+        """Syncs the hybrid commands."""
+        await self.bot.tree.sync()
+
+        await ctx.send("Done.", reference=ctx.message)
+
+    @sync.error
+    async def sync_command_error(self, ctx: commands.Context, exc: discord.DiscordException):
+        logging.exception(exc)
+        
+    @commands.command(name="syncguild", description="Syncs the hybrid commands for the guild.", pass_context=True)
+    @commands.guild_only()
+    async def syncguild(self, ctx: commands.Context):
+        """Syncs the hybrid commands for the guild."""
+        self.bot.tree.copy_global_to(guild=ctx.guild)
+        await ctx.send("Done.", reference=ctx.message)
 
     @commands.group(name="extensions", description="All operations about extensions.\nExtension name may be needed to work for some commands.", pass_context=True, aliases=["extension"], invoke_without_command=True)
     async def extensions(self, ctx: commands.Context, *args):
@@ -48,7 +71,7 @@ class OwnerCommandsCog(commands.Cog, name="Owner Commands"):
 
     @extensions.error
     async def extensions_command_error(self, ctx: commands.Context, exc: discord.DiscordException):
-        print("Exception in extensions command:", exc, exc.args, sep="\n")
+        logging.exception(exc)
 
 
     @extensions.command(name="load", pass_context=True)
@@ -61,7 +84,7 @@ class OwnerCommandsCog(commands.Cog, name="Owner Commands"):
 
         to_load = " ".join(args)
         if (to_load in not_loaded_extensions):
-            Extensions.load_extension(self.bot, to_load)
+            await Extensions.load_extension(self.bot, to_load)
             await ctx.send("Extension loaded.")
         else:
             await ctx.send("Extension couldn't be loaded.")
@@ -77,7 +100,7 @@ class OwnerCommandsCog(commands.Cog, name="Owner Commands"):
 
         to_unload = " ".join(args)
         if (to_unload in loaded_extensions):
-            Extensions.unload_extension(self.bot, to_unload)
+            await Extensions.unload_extension(self.bot, to_unload)
             await ctx.send("Extension unloaded.")
         else:
             await ctx.send("Extension couldn't be unloaded.")
@@ -85,7 +108,7 @@ class OwnerCommandsCog(commands.Cog, name="Owner Commands"):
     @extensions.command(name="reload", pass_context=True)
     async def extensions_reload(self, ctx: commands.Context, *args):
         try:
-            Extensions.reload_extension(self.bot, " ".join(args))
+            await Extensions.reload_extension(self.bot, " ".join(args))
             await ctx.send("Reloaded extension.")
         except (ExtensionNotFound, ExtensionNotLoaded):
             await ctx.send("Couldn't reload extension.")
@@ -99,12 +122,46 @@ class OwnerCommandsCog(commands.Cog, name="Owner Commands"):
                 not_loaded_extensions.append(extension)
 
         for extensionName in loaded_extensions:
-            Extensions.reload_extension(self.bot, extensionName)
+            await Extensions.reload_extension(self.bot, extensionName)
 
         await ctx.send("Reloaded all loaded extensions.")
 
     @extensions.command(name="load_all", pass_context=True)
     async def extensions_load_all(self, ctx: commands.Context, *args):
-        Extensions.unload_loaded_extensions(ctx.bot)
-        Extensions.load_all_extensions(ctx.bot)
+        await Extensions.unload_loaded_extensions(ctx.bot)
+        await Extensions.load_all_extensions(ctx.bot)
         await ctx.send("Loaded all extensions.")
+
+    @commands.hybrid_group(name="logging", description="Gets the logging level.", pass_context=True, invoke_without_command=True)
+    async def logging(self, ctx: commands.Context):
+        """Gets the logging level."""
+        await ctx.send(f"Current logging level is {logging.getLevelName(logging.getLogger().getEffectiveLevel())}.", reference=ctx.message)
+
+    @logging.command(name="set", description="Sets the logging level.", pass_context=True)
+    @app_commands.describe(level='The debug level.')
+    async def logging_set(self, ctx: commands.Context, level: LoggingLevel):
+        """Sets the logging level."""
+        newLevel = None
+        match (level):
+            case LoggingLevel.Debug | LoggingLevel.Discord_Debug:
+                newLevel = logging.DEBUG
+            case LoggingLevel.Info:
+                newLevel = logging.INFO
+            case _:
+                await ctx.send(f"Couldn't find the level.", reference=ctx.message)
+                return
+
+        logging.root.setLevel(newLevel)
+        for handler in logging.root.handlers:
+            handler.setLevel(newLevel)
+
+        for name in logging.root.manager.loggerDict.keys():
+            if (level == LoggingLevel.Debug and name.startswith("discord")):
+                continue
+
+            logging.getLogger(name).setLevel(newLevel)
+
+        message = f"Switched logging to {logging.getLevelName(logging.root.getEffectiveLevel())}."
+        logging.root.info(message)
+        await ctx.send(f"Done. " + message, reference=ctx.message)
+

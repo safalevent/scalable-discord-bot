@@ -1,4 +1,6 @@
+import logging
 import sqlite3
+import traceback
 import asqlite
 import typing as t
 
@@ -12,7 +14,10 @@ detect_types = sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES
 databasePath = get_datafile_path(databaseName)
 
 class Column:
-    def __init__(self, name: str, columnType: str, specialities: t.List[str]) -> None:
+    def __init__(self, name: str, columnType: str, specialities: t.List[str]=None) -> None:
+        if (specialities == None):
+            specialities = []
+            
         self.name = name
         self.type = columnType
         self.specialities = specialities
@@ -52,16 +57,16 @@ class Table:
             conn.commit()
         
             for column in columns:
-                cursor.execute(f'SELECT name FROM pragma_table_info("{self.table.strip("[]")}")')
+                cursor.execute(f"pragma table_info('{self.table.strip('[]')}')")
                 curr_columns = cursor.fetchall()
-                curr_columns = [x[0] for x in curr_columns]
+                curr_columns = [x[1] for x in curr_columns]
                 if (not column.name in curr_columns):
                     self._add_column(column.name, column.type, column.specialities)
                     
             conn.close()
             
         except Exception as er:
-            print("Exception on _create_table:", type(er), er)
+            logging.exception(er)
 
     async def _drop_table(self):
         async with asqlite.connect(self.databasePath, detect_types=detect_types) as conn:
@@ -124,7 +129,7 @@ class Table:
                 
             await conn.commit()
 
-    async def _delete_row(self, deleteQuery: query.DeleteQuery):
+    async def _delete(self, deleteQuery: query.DeleteQuery):
         async with asqlite.connect(self.databasePath, detect_types=detect_types) as conn:
             async with conn.cursor() as cursor:
                 await cursor.execute(*deleteQuery.get_query())
@@ -169,7 +174,8 @@ class Table:
         return result_row[0] if len(result_row) != 0 else None
 
     async def get_one(self, selectQuery: query.SelectQuery) -> sqlite3.Row:
-        result = self.get(selectQuery)
+        selectQuery.set_limit(1)
+        result = await self.get(selectQuery)
         return result[0] if result else None
         
     async def get(self, selectQuery: query.SelectQuery) -> t.List[sqlite3.Row]:
@@ -196,7 +202,7 @@ class Table:
             assert setQuery.length() != 0
             if isinstance(setQuery, query.InsertQuery):
                 if isinstance(setQuery, query.SetQuery):
-                    setQuery = setQuery.get_insert()
+                    setQuery = setQuery.get_insert_query()
                 await self._insert(setQuery)
                 
             elif isinstance(setQuery, query.UpdateQuery):
@@ -211,7 +217,7 @@ class Table:
                     setQuery.add_where(equals={k:v})
 
             if isinstance(setQuery, query.SetQuery):
-                setQuery = setQuery.get_update()
+                setQuery = setQuery.get_update_query()
             return await self._update(setQuery)
 
         else:
@@ -221,15 +227,15 @@ class Table:
                     setQuery.set_values(**{k:v})
 
             if isinstance(setQuery, query.SetQuery):
-                setQuery = setQuery.get_insert()
+                setQuery = setQuery.get_insert_query()
             return await self._insert(setQuery)
 
-    async def delete_row(self, deleteQuery: query.DeleteQuery):
+    async def delete(self, deleteQuery: query.DeleteQuery):
         """Make sure to give information that is unique for the entry."""
         if not deleteQuery.table:
             deleteQuery.table = self.table
 
-        return await self._delete_row(deleteQuery)
+        return await self._delete(deleteQuery)
 
     async def copy_to_table_on_another_db(self, dbName: str, target_table_name: str):
         async with asqlite.connect(self.databasePath, detect_types=detect_types) as conn:

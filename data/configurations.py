@@ -28,8 +28,8 @@ class ServerInfo:
         self.prefix_data = Table("Guild_Prefix_Info", "guildID", columns=columns)
 
         mods_columns = [
-            Column("guildID", "integer", ['NOT NULL']),
-            Column("roleID", "integer", ['NOT NULL'])
+            Column("guildID", "integer", []),
+            Column("roleID", "integer", [])
             ]
         self.mods_data = Table("Guild_Mods_Info", ["guildID", "roleID"], columns=mods_columns)
     
@@ -57,11 +57,11 @@ class ServerInfo:
 
     async def set_mod_role(self, guildId, roleId):
         setQuery = SetQuery(setDict={"guildID": guildId, "roleID": roleId})
-        return await self.mods_data.set(setQuery)
+        return await self.mods_data.set(setQuery=setQuery)
     
     async def clear_mod_role(self, guildId, roleId):
         setQuery = DeleteQuery().add_where(equals={"guildID": guildId, "roleID": roleId})
-        return await self.mods_data.delete_row(setQuery)
+        return await self.mods_data.delete(setQuery)
 
 
 serverInfo = ServerInfo()

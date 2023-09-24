@@ -3,6 +3,7 @@ import discord
 from discord.colour import Color
 from discord.ext import commands
 from discord.ext.commands.core import Group
+import typing as t
 
 from data.configurations import serverInfo
 
@@ -11,7 +12,7 @@ class CommandsCog(commands.Cog, name="Commands"):
         self.bot = bot
         
     # Ref: https://stackoverflow.com/a/65089774/14145833
-    @commands.command()
+    @commands.hybrid_command()
     async def help(self, ctx: commands.Context, args=None):
         """Helps."""
         help_embed = discord.Embed(description="", colour=Color.blurple())
@@ -131,24 +132,28 @@ class CommandsCog(commands.Cog, name="Commands"):
 
         await ctx.send(embed=help_embed)
 
-    @commands.command(name="random", description="Makes a random choice between the given numbers or the people in the channel.", aliases=["seç", "rastgele", "r"])
-    async def random(self, ctx: commands.Context, *args):
-        """Makes a random choice."""
-        if(len(args) >= 2):
+    @commands.hybrid_command(name="random", description="Makes a random choice between the given numbers or the people in the channel.", aliases=["seç", "rastgele", "r"])
+    @discord.app_commands.describe(
+        numbers="Optinal, makes the bot work as a RNG."
+    )
+    async def random(self, ctx: commands.Context, *, numbers: t.Optional[str] = None):
+        """Makes a random choice of people or numbers."""
+        numbers = numbers.strip().split()
+        if(len(numbers) >= 2):
             try:
                 has_float = False
                 dots = [",", "."]
-                if (any(x in args[0] for x in dots)):
-                    first = float(args[0])
+                if (any(x in numbers[0] for x in dots)):
+                    first = float(numbers[0])
                     has_float = True
                 else:
-                    first = int(args[0])
+                    first = int(numbers[0])
                     
-                if (any(x in args[1] for x in dots)):
-                    second = float(args[1])
+                if (any(x in numbers[1] for x in dots)):
+                    second = float(numbers[1])
                     has_float = True
                 else:
-                    second = int(args[1])
+                    second = int(numbers[1])
 
                 if (has_float):
                     num = round(uniform(first,second), 2)

@@ -2,6 +2,7 @@ import discord, os, asyncio
 from discord.ext import commands
 from discord.utils import get
 import typing as t
+import logging
 
 from data.configurations import is_moderator, serverInfo
 
@@ -13,11 +14,11 @@ class ModeratorCommandsCog(commands.Cog, name="Moderator Commands"):
     async def cog_check(self, ctx: commands.Context):
         return await is_moderator(ctx)
 
-    def cog_command_error(self, ctx: commands.Context, error: Exception) -> None:
-        if isinstance(error, commands.CommandInvokeError):
-            error = error.original
+    def cog_command_error(self, ctx: commands.Context, exc: Exception) -> None:
+        if isinstance(exc, commands.CommandInvokeError):
+            exc = exc.original
 
-        print("Error in ModeratorCommandsCog:", type(error), error)
+        logging.exception(exc)
 
     @commands.group(name="moderators", description="Everything about moderators.", pass_context=True, invoke_without_command=True, aliases=["mods"])
     async def moderators(self, ctx: commands.Context):
@@ -44,13 +45,13 @@ class ModeratorCommandsCog(commands.Cog, name="Moderator Commands"):
     @commands.group(name="prefix", description="Changes the bots prefix.", pass_context=True, invoke_without_command=True)
     async def prefix(self, ctx, *args):
         """Prefix info for guild."""
-        await ctx.trigger_typing()
+        # await ctx.trigger_typing()
         await ctx.send("My prefix for this server is " + str(await serverInfo.get_prefix(ctx.guild.id)) + ".", reference=ctx.message)
 
     @prefix.command(name="set", description="Sets a new prefix.", pass_context=True)
     async def set_prefix(self, ctx: commands.Context, new_prefix: str):
         """Changes the bot's prefix."""
-        await ctx.trigger_typing()
+        # await ctx.trigger_typing()
 
         await serverInfo.set_prefix(ctx.guild.id, new_prefix)
         await ctx.send("New prefix is: " + new_prefix)
