@@ -1,17 +1,16 @@
 import discord
-import traceback
-import sys
+import logging, traceback
 from discord.ext import commands
 from discord.ext.commands.errors import CheckFailure, MissingRequiredArgument
 
-# Partly Ref: https://gist.github.com/EvieePy/7822af90858ef65012ea500bcecf1612
-class CommandErrorHandler(commands.Cog):
 
+class CommandErrorHandler(commands.Cog):
     def __init__(self, bot):
+        self.logger = logging.getLogger(__name__.split(".")[-1])
         self.bot = bot
 
     @commands.Cog.listener()
-    async def on_command_error(self, ctx, error):
+    async def on_command_error(self, ctx, exc: Exception):
         """The event triggered when an error is raised while invoking a command.
         Parameters
         ------------
@@ -29,33 +28,33 @@ class CommandErrorHandler(commands.Cog):
                 return
 
         ignored = (commands.CommandNotFound, )
-        error = getattr(error, 'original', error)
+        exc: Exception = getattr(exc, 'original', exc)
 
-        if isinstance(error, ignored):
+        if isinstance(exc, ignored):
             return
 
-        if isinstance(error, commands.DisabledCommand):
+        if isinstance(exc, commands.DisabledCommand):
             await ctx.send(f'{ctx.command} has been disabled.')
 
-        elif isinstance(error, commands.NoPrivateMessage):
+        elif isinstance(exc, commands.NoPrivateMessage):
             try:
                 await ctx.author.send(f'{ctx.command} can not be used in Private Messages.')
             except discord.HTTPException:
                 pass
 
-        elif isinstance(error, commands.BadArgument):
+        elif isinstance(exc, commands.BadArgument):
             if ctx.command.qualified_name == 'tag list':
                 await ctx.send('I could not find that member. Please try again.')
 
-        elif isinstance(error, CheckFailure):
-            print(f"Check failed on command: {ctx.command.qualified_name}")
+        # elif isinstance(exc, CheckFailure):
+        #     self.logger.error(f"Check failed on command: {ctx.command.qualified_name}")
 
-        elif isinstance(error, MissingRequiredArgument):
-            await ctx.send(str(error).capitalize(), reference=ctx.message)
+        elif isinstance(exc, MissingRequiredArgument):
+            await ctx.send(str(exc).capitalize(), reference=ctx.message)
 
         else:
-            print('Ignoring exception in command {}:'.format(ctx.command), file=sys.stderr)
-            traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+            errorStr = "".join(traceback.format_exception(type(exc), exc, exc.__traceback__))
+            self.logger.error(f'Ignoring exception in command {ctx.command}:\n{errorStr}')
 
-def setup(bot):
-    bot.add_cog(CommandErrorHandler(bot))
+async def setup(bot):
+    await bot.add_cog(CommandErrorHandler(bot))
